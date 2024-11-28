@@ -3,25 +3,17 @@ import Dock from '../components/Dock'
 import DraggableManager from '../components/DraggableManager'
 import Pagination from '../components/Pagination'
 import StatusBar from '../components/StatusBar'
-import useInit from '../hooks/useInit'
 import { delay } from '../utils'
 import { dataMock } from '../constant'
+import useSetting from '../hooks/useSetting'
+import useCalculate from '../hooks/useCalculate'
+import useDraggable from '../hooks/useDraggable'
 
 export default function MainLayout() {
-  const {
-    pagesRef,
-    heightStatusBar,
-    heightPagination,
-    heightDocs,
-    screenWidth,
-    setIsLoadingSetting,
-    isLoadingSetting,
-    // DappManager
-    setPagesRefLocal,
-    pages,
+  const { setIsLoadingSetting, isLoadingSetting, currentPage } = useSetting()
+  const { heightStatusBar, heightPagination, heightDocs, screenWidth } = useCalculate()
 
-    currentPage
-  } = useInit()
+  const { setPagesRefLocal, pagesRef, pages } = useDraggable()
 
   const fetchData = useCallback(async () => {
     setIsLoadingSetting(true)

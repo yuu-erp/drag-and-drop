@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef } from 'react'
 import usePageManager from './usePageManager'
 import useSetting from './useSetting'
 import { getClientCoordinates, getEventTypes } from './useTouchMouseEvents'
+import useDappManager from './useDappManager'
 
 const initDragState = {
   isMoving: false,
@@ -15,8 +16,11 @@ const initDragState = {
 
 export default function useDraggable() {
   const { currentPage, setCurrentPage } = useSetting()
-  const pagesRef = useRef<HTMLDivElement>(null)
+  const pagesRef = useRef<HTMLDivElement>(null!)
+
   const { movePage, scrollToPage, scrollToPageNotrequestAnimationFrame } = usePageManager(pagesRef)
+  const { onChangePageWithCurrentPage, pages, setPagesRefLocal } = useDappManager()
+
   const isTouch = 'ontouchstart' in window
   // Combine all draggable state into one ref object for better readability and maintenance
   const dragState = useRef(initDragState)
@@ -93,6 +97,7 @@ export default function useDraggable() {
         }
       }
       console.log('currentPage: ', currentPage.current)
+      onChangePageWithCurrentPage(currentPage.current)
       scrollToPage(currentPage.current, () => setCurrentPage(currentPage.current))
       resetDragState()
     },
@@ -126,5 +131,5 @@ export default function useDraggable() {
     }
   }, [isTouch])
 
-  return { pagesRef }
+  return { pagesRef, pages, setPagesRefLocal }
 }
