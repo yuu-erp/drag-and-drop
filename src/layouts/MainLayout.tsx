@@ -32,13 +32,13 @@ export default function MainLayout() {
   }, [])
 
   console.log('MainLayout - pages: ', pages)
-
-  if (isLoadingSetting)
+  if (isLoadingSetting) {
     return (
       <div className='bg-[#242424] fixed inset-0 w-screen h-screen flex items-center justify-center text-lg'>
         Loading...
       </div>
     )
+  }
   return (
     <div className='h-screen w-screen flex flex-col'>
       <StatusBar

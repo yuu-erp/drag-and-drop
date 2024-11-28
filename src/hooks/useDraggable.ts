@@ -105,13 +105,14 @@ export default function useDraggable() {
   )
   // Assign the callback functions to the refs so they persist between renders
   useEffect(() => {
+    if (!pages || !pages.length || pages.length < 1) return
     onStartDraggableRef.current = onStartDraggable
     onMoveDraggableRef.current = onMoveDraggable
     onEndDraggableRef.current = onEndDraggable
     if (pagesRef.current) {
       scrollToPageNotrequestAnimationFrame(currentPage.current)
     }
-  }, [onStartDraggable, onMoveDraggable, onEndDraggable, pagesRef])
+  }, [onStartDraggable, onMoveDraggable, onEndDraggable, pagesRef, pages])
 
   // Effect to handle adding and removing event listeners
   useEffect(() => {
