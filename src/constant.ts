@@ -4,6 +4,7 @@ export const SIZE_ICON_APP = 60
 export const HEIGHT_STATUS_BAR = 60
 export const HEIGHT_DOCK = 120
 export const HEIGHT_PAGINATION = 40
+export const PADDING_APP = 40
 
 export const MIN_SWIPE_DISTANCE = 50
 export const MAX_TIME = 1000

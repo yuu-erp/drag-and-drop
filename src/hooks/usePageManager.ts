@@ -42,7 +42,6 @@ export default function usePageManager(elementRef: React.RefObject<HTMLDivElemen
   const scrollToPageNotrequestAnimationFrame = useCallback(
     (page: number = 0) => {
       if (!elementRef.current) return
-      console.log('elementRef', elementRef, page)
       const to = elementRef.current.offsetWidth * page
       elementRef.current.scrollLeft = to
     },
