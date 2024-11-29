@@ -43,7 +43,7 @@ export default function usePageManager(elementRef: React.RefObject<HTMLDivElemen
     (page: number = 0) => {
       if (!elementRef.current) return
       const to = elementRef.current.offsetWidth * page
-      elementRef.current.scrollLeft = to
+      movePage(to)
     },
     [elementRef]
   )
