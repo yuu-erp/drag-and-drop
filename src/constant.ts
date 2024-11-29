@@ -10,6 +10,8 @@ export const MIN_SWIPE_DISTANCE = 50
 export const MAX_TIME = 1000
 export const VELOCITY_THRESHOLD = 0.3
 
+export const RAITO = 0.65
+
 export const dataMock: Pages[] = [
   [
     {

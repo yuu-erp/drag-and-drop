@@ -4,14 +4,29 @@ import usePageManager from './usePageManager'
 import useSetting from './useSetting'
 import { getClientCoordinates, getEventTypes } from './useTouchMouseEvents'
 import useDappManager from './useDappManager'
+import { getTranslateFromTransform } from '../utils'
 
-const initDragState = {
+export interface IState {
+  isMoving: boolean
+  startX: number
+  startY: number
+  timeStart: number
+  scrollLeft: number
+  isRequestingFrame: boolean
+  target?: HTMLElement
+  targetLeft: number
+  targetTop: number
+}
+
+const initDragState: IState = {
   isMoving: false,
   startX: 0,
   startY: 0,
   timeStart: 0,
   scrollLeft: 0,
-  isRequestingFrame: false
+  isRequestingFrame: false,
+  targetLeft: 0,
+  targetTop: 0
 }
 
 export default function useDraggable() {
@@ -19,7 +34,7 @@ export default function useDraggable() {
   const pagesRef = useRef<HTMLDivElement>(null!)
 
   const { movePage, scrollToPage, scrollToPageNotrequestAnimationFrame } = usePageManager(pagesRef)
-  const { onChangePageWithCurrentPage, pages, setPagesRefLocal } = useDappManager()
+  const { onChangePageWithCurrentPage, pages, setPagesRefLocal, moveDapp } = useDappManager()
 
   const isTouch = 'ontouchstart' in window
   // Combine all draggable state into one ref object for better readability and maintenance
@@ -36,6 +51,9 @@ export default function useDraggable() {
     dragState.current.timeStart = 0
     dragState.current.scrollLeft = 0
     dragState.current.isRequestingFrame = false
+    delete dragState.current.target
+    dragState.current.targetLeft = 0
+    dragState.current.targetTop = 0
   }, [])
 
   // Create event handlers with useCallback to prevent re-creation on each render
@@ -47,23 +65,47 @@ export default function useDraggable() {
     dragState.current.startX = clientX
     dragState.current.startY = clientY
     dragState.current.scrollLeft = pagesRef.current.scrollLeft || 0
+    const target = event.target as HTMLElement
+    const type = target.getAttribute('datatype')
+    if (type === 'dapp') {
+      dragState.current.target = target
+      const { x, y } = getTranslateFromTransform(target)
+      dragState.current.targetLeft = x
+      dragState.current.targetTop = y
+    }
   }, [])
 
   const onMoveDraggable = useCallback(
     (event: TouchEvent | MouseEvent): void => {
       if (!dragState.current.isMoving || !pagesRef.current) return
       // Tính toán vị trí hiện tại và khoảng cách di chuyển
-      const { clientX } = getClientCoordinates(event)
-      const walk = clientX - dragState.current.startX
+      const { clientX, clientY } = getClientCoordinates(event)
+      const walkX = clientX - dragState.current.startX
+      const walkY = clientY - dragState.current.startY
+
+      const deltaTime = performance.now() - dragState.current.timeStart
+
+      //Logic giữ yên để move dapp
+      if (Math.abs(walkX) > 1 && deltaTime < 500) {
+        delete dragState.current.target
+      }
+
       // Ngưỡng di chuyển nhỏ để bỏ qua các jitter không đáng kể
-      const deltaThreshold = 2
-      if (Math.abs(walk) < deltaThreshold) return
+      const deltaThreshold = 5
+      if (Math.abs(walkX) < deltaThreshold) return
       if (!dragState.current.isRequestingFrame) {
         dragState.current.isRequestingFrame = true
+        const { scrollLeft, startX, startY, targetLeft, targetTop, target } = dragState.current
+
+        const handleMoveDapp = () => moveDapp(target!, (targetLeft + walkX) % innerWidth, targetTop + walkY)
+
         // Chỉ tính toán và cập nhật khi màn hình sẵn sàng vẽ
         requestAnimationFrame(() => {
-          const { scrollLeft } = dragState.current
-          movePage(scrollLeft - walk) // Di chuyển trang
+          handleMoveDapp()
+          if (dragState.current.target) {
+          } else {
+            movePage(scrollLeft - walkX) // Di chuyển trang
+          }
           dragState.current.isRequestingFrame = false // Reset trạng thái
         })
       }
@@ -88,12 +130,15 @@ export default function useDraggable() {
       const DISTANCE_THRESHOLD = pageWidth * 0.5 // Ngưỡng kéo 50% trang
       const maxPage = Math.ceil(pagesRef.current.scrollWidth / pageWidth) - 1 // Tính page max được tính từ 0
       // Xác định trang mục tiêu
-      if (velocity > VELOCITY_THRESHOLD || Math.abs(deltaX) > DISTANCE_THRESHOLD) {
-        // Dựa vào hướng kéo để xác định trang
-        if (deltaX > 0) {
-          currentPage.current = Math.max(0, currentPage.current - 1)
-        } else {
-          currentPage.current = Math.min(maxPage, currentPage.current + 1)
+      if (dragState.current.target) {
+      } else {
+        if (velocity > VELOCITY_THRESHOLD || Math.abs(deltaX) > DISTANCE_THRESHOLD) {
+          // Dựa vào hướng kéo để xác định trang
+          if (deltaX > 0) {
+            currentPage.current = Math.max(0, currentPage.current - 1)
+          } else {
+            currentPage.current = Math.min(maxPage, currentPage.current + 1)
+          }
         }
       }
       console.log('currentPage: ', currentPage.current)

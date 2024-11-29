@@ -8,6 +8,7 @@ import { dataMock } from '../constant'
 import useSetting from '../hooks/useSetting'
 import useCalculate from '../hooks/useCalculate'
 import useDraggable from '../hooks/useDraggable'
+import { mock } from '../constants/mock'
 
 export default function MainLayout() {
   const { setIsLoadingSetting, isLoadingSetting, currentPage } = useSetting()
@@ -19,7 +20,7 @@ export default function MainLayout() {
     setIsLoadingSetting(true)
     try {
       await delay(1000)
-      setPagesRefLocal(dataMock, currentPage.current)
+      setPagesRefLocal(mock.flat(), currentPage.current)
     } catch (error) {
       console.error(error)
     } finally {
@@ -41,11 +42,11 @@ export default function MainLayout() {
   }
   return (
     <div className='h-screen w-screen flex flex-col'>
-      <StatusBar
+      {/* <StatusBar
         style={{
           height: heightStatusBar + 'px'
         }}
-      />
+      /> */}
       <DraggableManager
         ref={pagesRef}
         pages={pages}
@@ -53,16 +54,16 @@ export default function MainLayout() {
           width: pages.length * screenWidth + 'px'
         }}
       />
-      <Pagination
+      {/* <Pagination
         style={{
           height: heightPagination + 'px'
         }}
-      />
-      <Dock
+      /> */}
+      {/* <Dock
         style={{
           height: heightDocs + 'px'
         }}
-      />
+      /> */}
     </div>
   )
 }

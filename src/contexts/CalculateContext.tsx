@@ -1,5 +1,5 @@
 import React, { PropsWithChildren, useCallback, useState, useEffect } from 'react'
-import { HEIGHT_DOCK, HEIGHT_PAGINATION, HEIGHT_STATUS_BAR, PADDING_APP, SIZE_ICON_APP } from '../constant'
+import { HEIGHT_DOCK, HEIGHT_PAGINATION, HEIGHT_STATUS_BAR, PADDING_APP, RAITO, SIZE_ICON_APP } from '../constant'
 
 // CalculateState type
 export type CalculateState = {
@@ -13,6 +13,8 @@ export type CalculateState = {
   paddingApp: number
   numberColumn: number
   numberRow: number
+  gridWidth: number
+  prePadding: number
 }
 
 // Interface for context
@@ -51,8 +53,15 @@ export const CalculateProvider: React.FC<CalculateProviderProps> = ({ children }
   const [stateManager, _setStateManager] = useState<CalculateState>(() => {
     const screenWidth = window.innerWidth
     const screenHeight = window.innerHeight
-    const itemWidth = calculateItemWidth(PADDING_APP)
+    // const itemWidth = calculateItemWidth(PADDING_APP)
+    const itemWidth = 60
     const numberColumn = 4
+
+    const gridWidth = itemWidth / RAITO
+    const paddingApp = (gridWidth * (1 - RAITO)) / 2
+
+    const prePadding = (innerWidth - gridWidth * numberColumn) / 2
+
     const numberRow = calculateNumberRow(
       screenHeight,
       itemWidth,
@@ -70,11 +79,15 @@ export const CalculateProvider: React.FC<CalculateProviderProps> = ({ children }
       itemWidth,
       screenWidth,
       screenHeight,
-      paddingApp: PADDING_APP,
+      paddingApp,
       numberColumn,
-      numberRow
+      numberRow,
+      gridWidth,
+      prePadding
     }
   })
+
+  console.log('stateManager', stateManager)
 
   // Update state when window resizes
   useEffect(() => {
