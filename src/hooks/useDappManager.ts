@@ -22,9 +22,5 @@ export default function useDappManager() {
     setPages(pagesRef.current)
   }, [])
 
-  const moveDapp = useCallback((target: HTMLElement, x: number, y: number) => {
-    target.style.transform = `translate(${x}px, ${y}px)`
-  }, [])
-
-  return { onChangePageWithCurrentPage, pages, setPagesRefLocal, moveDapp }
+  return { onChangePageWithCurrentPage, pages, setPagesRefLocal }
 }

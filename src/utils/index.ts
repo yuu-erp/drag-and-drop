@@ -7,7 +7,7 @@ export function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-export const animate = (fn: (progress: number) => void, duration = 300, cb?: () => void) => {
+export const animate = (fn: (progress: number) => void, duration = 100, cb?: () => void) => {
   let startTime: number | null = null
 
   const run = (currentTime: number) => {
