@@ -35,7 +35,7 @@ export default function useDraggable() {
   const pagesRef = useRef<HTMLDivElement>(null!)
 
   const { movePage, scrollToPage, scrollToPageNotrequestAnimationFrame } = usePageManager(pagesRef)
-  const { onChangePageWithCurrentPage, pages, setPagesRefLocal } = useDappManager()
+  const { onChangePageWithCurrentPage, pages, setPagesRefLocal, totalPage } = useDappManager()
   const { snapToXY, moveDapp } = useDapp()
 
   const isTouch = 'ontouchstart' in window
@@ -75,11 +75,14 @@ export default function useDraggable() {
     dragState.current.scrollLeft = pagesRef.current.scrollLeft || 0
     const target = event.target as HTMLElement
     const type = target.getAttribute('datatype')
+
     if (type === 'dapp') {
-      addTarget(target)
-      const { x, y } = getTranslateFromTransform(target)
-      dragState.current.targetLeft = x
-      dragState.current.targetTop = y
+      const parent = target.parentNode?.parentNode as HTMLElement
+
+      addTarget(parent)
+      const { left, top } = getTranslateFromTransform(parent)
+      dragState.current.targetLeft = left
+      dragState.current.targetTop = top
     }
   }, [])
 
@@ -130,6 +133,8 @@ export default function useDraggable() {
       const deltaTime = performance.now() - dragState.current.timeStart
       if (target) {
         snapToXY(target, currentPage.current)
+        resetDragState()
+
         return
       }
 
@@ -189,5 +194,5 @@ export default function useDraggable() {
     }
   }, [isTouch])
 
-  return { pagesRef, pages, setPagesRefLocal }
+  return { pagesRef, pages, setPagesRefLocal, totalPage }
 }

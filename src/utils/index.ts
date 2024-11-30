@@ -25,11 +25,11 @@ export const animate = (fn: (progress: number) => void, duration = 100, cb?: () 
   requestAnimationFrame(run)
 }
 
-export function getTranslateFromTransform(element: HTMLElement): { x: number; y: number } {
+export function getTranslateFromTransform(element: HTMLElement): { left: number; top: number } {
   // Get the transform string from the inline style or computed style
   const transform = element.style.transform || window.getComputedStyle(element).transform
 
-  const failed = { x: 0, y: 0 }
+  const failed = { left: 0, top: 0 }
 
   if (!transform || transform === 'none') return failed // Return failed if no transform is found
 
@@ -38,9 +38,9 @@ export function getTranslateFromTransform(element: HTMLElement): { x: number; y:
 
   if (translateMatch) {
     // Return the x and y values as numbers
-    const x = parseFloat(translateMatch[1])
-    const y = parseFloat(translateMatch[2])
-    return { x, y } // Return the x and y values as an object
+    const left = parseFloat(translateMatch[1])
+    const top = parseFloat(translateMatch[2])
+    return { left, top } // Return the x and y values as an object
   }
 
   return failed // Return failed if no translate match is found

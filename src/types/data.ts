@@ -9,6 +9,7 @@ export type Dapp = {
   id: number
   page: number
   position: DappPosition
+  logo: string
 }
 
 export type Pages = Dapp[]

@@ -1,5 +1,13 @@
-import React, { PropsWithChildren, useCallback, useState, useEffect } from 'react'
-import { HEIGHT_DOCK, HEIGHT_PAGINATION, HEIGHT_STATUS_BAR, PADDING_APP, RAITO, SIZE_ICON_APP } from '../constant'
+import React, { PropsWithChildren, useCallback, useEffect, useState } from 'react'
+import {
+  HEIGHT_DOCK,
+  HEIGHT_PAGINATION,
+  HEIGHT_STATUS_BAR,
+  NUMBER_COLUMN,
+  PADDING_APP,
+  screenCheckPoint,
+  SIZE_ICON_APP
+} from '../constant'
 
 // CalculateState type
 export type CalculateState = {
@@ -7,6 +15,7 @@ export type CalculateState = {
   heightDocs: number
   heightPagination: number
   itemWidth: number
+  itemHeight: number
   sizeIcon: number
   screenWidth: number
   screenHeight: number
@@ -14,6 +23,7 @@ export type CalculateState = {
   numberColumn: number
   numberRow: number
   gridWidth: number
+  gridHeight: number
   prePadding: number
 }
 
@@ -28,9 +38,11 @@ export const CalculateContext = React.createContext<ICalculateContext>(null!)
 
 export const CalculateProvider: React.FC<CalculateProviderProps> = ({ children }) => {
   // Calculate the width of each grid item
-  const calculateItemWidth = useCallback((paddingApp: number) => {
-    const columns = 4 // Fixed number of columns
-    return Math.floor((window.innerWidth - paddingApp) / columns)
+  const caculateCheckPoint = useCallback(() => {
+    const width = innerWidth
+    if (width >= screenCheckPoint.desktop) return screenCheckPoint.desktop
+    if (width >= screenCheckPoint.tablet) return screenCheckPoint.tablet
+    return innerWidth
   }, [])
 
   // Calculate the number of rows
@@ -51,16 +63,21 @@ export const CalculateProvider: React.FC<CalculateProviderProps> = ({ children }
 
   // State management
   const [stateManager, _setStateManager] = useState<CalculateState>(() => {
-    const screenWidth = window.innerWidth
-    const screenHeight = window.innerHeight
+    const screenWidth = caculateCheckPoint()
+    const screenHeight = innerHeight
+    const isPortrait = innerWidth < innerHeight
+
     // const itemWidth = calculateItemWidth(PADDING_APP)
     const itemWidth = 60
-    const numberColumn = 4
+    const itemHeight = itemWidth * 1.3
 
-    const gridWidth = itemWidth / RAITO
-    const paddingApp = (gridWidth * (1 - RAITO)) / 2
+    const numberColumn = NUMBER_COLUMN
 
-    const prePadding = (innerWidth - gridWidth * numberColumn) / 2
+    const paddingApp = (screenWidth - numberColumn * itemWidth) / (2 * numberColumn + 2)
+    const gridWidth = 2 * paddingApp + itemWidth
+    const gridHeight = itemHeight + paddingApp
+
+    const prePadding = (innerWidth - screenWidth) / 2
 
     const numberRow = calculateNumberRow(
       screenHeight,
@@ -77,13 +94,15 @@ export const CalculateProvider: React.FC<CalculateProviderProps> = ({ children }
       heightPagination: HEIGHT_PAGINATION,
       sizeIcon: SIZE_ICON_APP,
       itemWidth,
+      itemHeight,
       screenWidth,
       screenHeight,
       paddingApp,
       numberColumn,
       numberRow,
       gridWidth,
-      prePadding
+      prePadding,
+      gridHeight
     }
   })
 
@@ -91,6 +110,7 @@ export const CalculateProvider: React.FC<CalculateProviderProps> = ({ children }
 
   // Update state when window resizes
   useEffect(() => {
+    console.log('sizeeeeee', innerHeight, innerWidth)
     window.addEventListener('resize', () => window.location.reload())
     return () => window.removeEventListener('resize', () => window.location.reload())
   }, [])
