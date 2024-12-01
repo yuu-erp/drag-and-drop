@@ -39,7 +39,7 @@ const useResponsiveValue = (breakpoints: Record<number, number>, defaultValue: n
 }
 
 const calculateGridDimensions = (screenWidth: number, columns: number) => {
-  const factor = 20
+  const factor = 20 // tỉ lệ tui điều chỉnh và tìm ra con số phù hợp nhất với trải nghiệm nên đừng tò mò
   const outerPadding = screenWidth / (columns * factor)
   const gridGap = outerPadding
   const totalPadding = 2 * outerPadding + (columns - 1) * gridGap
@@ -192,11 +192,25 @@ const NewLayout = () => {
             }}
           >
             {dataDock.map((_app, index) => (
+              // <div
+              //   key={index}
+              //   className='w-[60px] aspect-square bg-slate-600 rounded-[14px]'
+              //   onClick={onRemoveDappDock(_app)}
+              // ></div>
               <div
                 key={index}
-                className='w-[60px] aspect-square bg-slate-600 rounded-[14px]'
-                onClick={onRemoveDappDock(_app)}
-              ></div>
+                style={{
+                  width: itemWidth + 'px',
+                  height: itemWidth + 'px',
+                  paddingLeft: outerPadding + 'px',
+                  paddingRight: outerPadding + 'px'
+                }}
+              >
+                <div className='w-full h-full flex flex-col items-center justify-center'>
+                  <div className='w-[60px] aspect-square bg-slate-600 rounded-[14px]'></div>
+                  {/* <p className='line-clamp-1 text-center text-white font-medium text-xs'>Metanode App</p> */}
+                </div>
+              </div>
             ))}
           </div>
         </div>
