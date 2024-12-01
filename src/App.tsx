@@ -1,12 +1,12 @@
-import { SettingProvider, CalculateProvider } from './contexts'
-import MainLayout from './layouts/MainLayout'
+import { SettingProvider } from './contexts'
+import NewLayout from './layouts/NewLayout'
 
 export default function App() {
   return (
     <SettingProvider>
-      <CalculateProvider>
-        <MainLayout />
-      </CalculateProvider>
+      {/* <CalculateProvider> */}
+      <NewLayout />
+      {/* </CalculateProvider> */}
     </SettingProvider>
   )
 }
