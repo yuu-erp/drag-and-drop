@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { cn } from '../lib/utils'
 
+export const HEIGHT_DOCK = 120
+
 const CHECKPOINT_COLUMN: Record<number, number> = {
   768: 4,
   1024: 6
@@ -10,8 +12,8 @@ const CHECKPOINT_HEIGHT_STATUS_BAR: Record<number, number> = {
   1024: 40
 }
 const CHECKPOINT_COLUMN_DOCK: Record<number, number> = {
-  768: 8,
-  1024: 12
+  768: 6,
+  1024: 8
 }
 
 const CHECKPOINT_SCREEN: Record<number, number> = {
@@ -27,7 +29,7 @@ const useResponsiveValue = (breakpoints: Record<number, number>, defaultValue: n
     let value = defaultValue
 
     for (const breakpoint of sortedBreakpoints) {
-      if (innerWidth > breakpoint) {
+      if (innerWidth >= breakpoint) {
         value = breakpoints[breakpoint]
       }
     }
@@ -62,14 +64,14 @@ const NewLayout = () => {
   const [stateManager, _setStateManager] = useState(() => {
     const columns = getCheckPointColumn()
     const { itemWidth, outerPadding, gridGap } = calculateGridDimensions(getCheckPointScreen(), columns)
-    const numberRows = Math.floor((innerHeight - getCheckPointHeightStatusBar() - 40 - 120) / itemWidth)
+    const numberRows = Math.floor((innerHeight - getCheckPointHeightStatusBar() - 40 - HEIGHT_DOCK) / itemWidth)
 
     return {
       screenWidth: getCheckPointScreen(),
       screenHeight: innerHeight,
       heightStatusBar: getCheckPointHeightStatusBar(),
       heightPagination: 40,
-      heightDock: 120,
+      heightDock: HEIGHT_DOCK,
       numberColumn: columns,
       numberRows,
       itemWidth,
@@ -82,13 +84,13 @@ const NewLayout = () => {
     }
   })
 
-  const [isBlur, setIsBlur] = useState(true)
-  const [theme, setTheme] = useState<'dark' | 'light'>('light')
+  const [isBlur, _setIsBlur] = useState(true)
+  const [theme, _setTheme] = useState<'dark' | 'light'>('light')
   const [dataDock, setDataDock] = useState<number[]>(
     Array.from({ length: getCheckPointColumnDock() }, (_, index) => index)
   )
 
-  const onRemoveDappDock = (value: number) => {
+  const onRemoveDappDock = (value: number) => () => {
     setDataDock((prev) => prev.filter((item) => item !== value))
   }
 
@@ -193,7 +195,11 @@ const NewLayout = () => {
             }}
           >
             {dataDock.map((_app, index) => (
-              <div key={index} className='w-[60px] aspect-square bg-slate-600 rounded-[14px]'></div>
+              <div
+                key={index}
+                className='w-[60px] aspect-square bg-slate-600 rounded-[14px]'
+                onClick={onRemoveDappDock(_app)}
+              ></div>
             ))}
           </div>
         </div>
