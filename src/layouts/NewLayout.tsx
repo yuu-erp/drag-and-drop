@@ -39,15 +39,12 @@ const useResponsiveValue = (breakpoints: Record<number, number>, defaultValue: n
 }
 
 const calculateGridDimensions = (screenWidth: number, columns: number) => {
-  const factor = 20 // Giá trị thử nghiệm, có thể điều chỉnh
+  const factor = 20
   const outerPadding = screenWidth / (columns * factor)
-  const gridGap = outerPadding // Đặt gridGap bằng outerPadding (có thể chỉnh sửa nếu cần)
-  console.log('calculateGridDimensions - outerPadding: ', outerPadding)
-  console.log('calculateGridDimensions - gridGap: ', gridGap)
-  // Tính chiều rộng của mỗi ô lưới
+  const gridGap = outerPadding
   const totalPadding = 2 * outerPadding + (columns - 1) * gridGap
   const itemWidth = (screenWidth - totalPadding) / columns
-
+  console.log({ factor, outerPadding: gridGap, totalPadding, itemWidth })
   return { itemWidth, outerPadding: totalPadding / 2, gridGap }
 }
 
