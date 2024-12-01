@@ -115,7 +115,7 @@ const NewLayout = () => {
       {/* StatusBar */}
       <div
         style={{ height: `${heightStatusBar}px` }}
-        className='border-b flex items-center justify-center absolute top-0 left-0 right-0 z-10'
+        className='flex items-center justify-center absolute top-0 left-0 right-0 z-10'
       >
         StatusBar
       </div>
@@ -166,7 +166,7 @@ const NewLayout = () => {
           height: `${heightPagination}px`,
           bottom: `${heightDock}px`
         }}
-        className='border-t flex items-center justify-center absolute left-0 right-0 w-full'
+        className='flex items-center justify-center absolute left-0 right-0 w-full'
       >
         Pagination
       </div>
@@ -174,7 +174,7 @@ const NewLayout = () => {
       {/* Dock */}
       <div
         style={{ height: `${heightDock}px`, paddingLeft: outerPadding + 'px', paddingRight: outerPadding + 'px' }}
-        className='absolute left-0 right-0 bottom-0 border-t z-10'
+        className='absolute left-0 right-0 bottom-0 z-10'
       >
         <div className='w-full h-full flex items-center justify-center'>
           <div
@@ -192,25 +192,11 @@ const NewLayout = () => {
             }}
           >
             {dataDock.map((_app, index) => (
-              // <div
-              //   key={index}
-              //   className='w-[60px] aspect-square bg-slate-600 rounded-[14px]'
-              //   onClick={onRemoveDappDock(_app)}
-              // ></div>
               <div
                 key={index}
-                style={{
-                  width: itemWidth + 'px',
-                  height: itemWidth + 'px',
-                  paddingLeft: outerPadding + 'px',
-                  paddingRight: outerPadding + 'px'
-                }}
-              >
-                <div className='w-full h-full flex flex-col items-center justify-center'>
-                  <div className='w-[60px] aspect-square bg-slate-600 rounded-[14px]'></div>
-                  {/* <p className='line-clamp-1 text-center text-white font-medium text-xs'>Metanode App</p> */}
-                </div>
-              </div>
+                className='w-[60px] aspect-square bg-slate-600 rounded-[14px]'
+                onClick={onRemoveDappDock(_app)}
+              ></div>
             ))}
           </div>
         </div>
