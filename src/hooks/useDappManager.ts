@@ -1,9 +1,11 @@
 import { useCallback, useRef, useState } from 'react'
 import { Pages } from '../types/data'
+import { useDapp2 } from './useDapp2'
 
 export default function useDappManager() {
   const [pages, setPages] = useState<Pages>([])
   const [totalPage, setTotalPage] = useState(0)
+  const dapp2 = useDapp2()
 
   const pagesRef = useRef<Pages[]>([])
 
@@ -30,5 +32,5 @@ export default function useDappManager() {
     setPages(currentPages)
   }, [])
 
-  return { onChangePageWithCurrentPage, pages, setPagesRefLocal, totalPage }
+  return { onChangePageWithCurrentPage, pages, setPagesRefLocal, totalPage, ...dapp2 }
 }

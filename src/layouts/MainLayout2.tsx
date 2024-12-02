@@ -8,6 +8,9 @@ import useCalculate from '../hooks/useCalculate2'
 import { createGrid } from '../utils/math'
 import useDraggable from '../hooks/useDraggable2'
 import { mock } from '../constants/mock'
+import { useDapp2 } from '../hooks/useDapp2'
+
+const mockPage = 4
 
 export default function MainLayout() {
   const {
@@ -31,6 +34,8 @@ export default function MainLayout() {
     setDataDock((prev) => prev.filter((item) => item !== value))
   }
 
+  const { getPosition } = useDapp2()
+
   return (
     <div className='w-screen h-screen relative shrink-0 overflow-hidden'>
       <StatusBar
@@ -43,23 +48,32 @@ export default function MainLayout() {
         isBgScroll={true}
         isBlur
         style={{
-          width: mock.length * innerWidth + 'px'
+          width: mockPage * innerWidth + 'px'
         }}
       >
-        {createGrid(rowsNumber, columnNumber).map((grid, index) => (
-          <DappComponent
-            key={index}
-            className='absolute'
-            style={{
-              width: itemWidth + 'px',
-              height: itemHeight + 'px',
-              top: grid.y * itemHeight + heightStatusBar + 'px',
-              left: grid.x * itemWidth + outerPadding + (innerWidth - screenCheckPoint) / 2,
-              paddingLeft: outerPadding + 'px',
-              paddingRight: outerPadding + 'px'
-            }}
-          />
-        ))}
+        {[...new Array(mockPage)].map((page, pageIdx) =>
+          createGrid(rowsNumber, columnNumber).map((grid, index) => {
+            const { top, left } = getPosition(grid.x, grid.y, pageIdx)
+
+            return (
+              <DappComponent
+                data-top={top}
+                data-left={left}
+                key={index}
+                className='absolute'
+                style={{
+                  width: itemWidth + 'px',
+                  height: itemHeight + 'px',
+                  transform: `translate(${left}px,${top}px)`,
+                  top: 0,
+                  left: 0,
+                  paddingLeft: outerPadding + 'px',
+                  paddingRight: outerPadding + 'px'
+                }}
+              />
+            )
+          })
+        )}
         {/* {mock.map((dapp, index) => (
           <div
             className='h-full flex items-center justify-center shrink z-10'

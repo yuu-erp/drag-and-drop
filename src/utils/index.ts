@@ -15,7 +15,8 @@ export const animate = (fn: (progress: number) => void, duration = 100, cb?: () 
     const elapsed = currentTime - startTime
 
     const progress = Math.min(elapsed / duration, 1)
-    fn(progress)
+    const ease = progress < 0.5 ? 2 * progress ** 2 : 1 - (-2 * progress + 2) ** 2 / 2
+    fn(ease)
     if (progress < 1) {
       requestAnimationFrame(run)
       return
@@ -44,4 +45,12 @@ export function getTranslateFromTransform(element: HTMLElement): { left: number;
   }
 
   return failed // Return failed if no translate match is found
+}
+
+export const wait = (time = 300) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(true)
+    }, time)
+  })
 }

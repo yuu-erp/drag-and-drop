@@ -12,6 +12,7 @@ const DappComponent = React.forwardRef<HTMLDivElement, DappComponentProps>((prop
     <div ref={ref} className={cn(className)} {...rest}>
       <div className='w-full h-full flex flex-col items-center justify-center gap-1'>
         <div
+          datatype='dapp'
           className='w-[60px] aspect-square bg-slate-600 rounded-[14px] shadow-sm'
           style={{
             width: SIZE_ICON + 'px',

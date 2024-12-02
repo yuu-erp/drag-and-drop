@@ -3,6 +3,8 @@ import { useCallback, useEffect, useRef } from 'react'
 import usePageManager from './usePageManager'
 import useSetting from './useSetting'
 import { getClientCoordinates, getEventTypes } from './useTouchMouseEvents'
+import { getTranslateFromTransform, wait } from '../utils'
+import useDappManager from './useDappManager'
 
 export interface IState {
   isMoving: boolean
@@ -16,6 +18,7 @@ export interface IState {
   targetLeft: number
   targetTop: number
   accumulatedDelta: number
+  intervalMovePage?: any
 }
 
 const initDragState: IState = {
@@ -36,6 +39,7 @@ export default function useDraggable() {
   const pagesRef = useRef<HTMLDivElement>(null!)
 
   const { movePage, scrollToPage, scrollToPageNotrequestAnimationFrame } = usePageManager(pagesRef)
+  const { moveDapp, snapTo } = useDappManager()
 
   const isTouch = 'ontouchstart' in window
   // Combine all draggable state into one ref object for better readability and maintenance
@@ -47,6 +51,9 @@ export default function useDraggable() {
   const onWheelRef = useRef<(event: WheelEvent) => void>(() => {})
 
   const resetDragState = useCallback(() => {
+    console.log('reset 1')
+    removeTarget()
+    removeMovePage()
     dragState.current = { ...initDragState }
   }, [])
 
@@ -59,37 +66,81 @@ export default function useDraggable() {
     dragState.current.startX = clientX
     dragState.current.startY = clientY
     dragState.current.scrollLeft = pagesRef.current.scrollLeft || 0
+    const target = event.target as HTMLElement
+    if (target.getAttribute('datatype') === 'dapp') {
+      const parent = target.parentNode?.parentNode as HTMLElement
+      addTarget(parent)
+      const { left, top } = getTranslateFromTransform(parent)
+      dragState.current.targetLeft = left % innerWidth
+      dragState.current.targetTop = top
+    }
   }, [])
 
   const onMoveDraggable = useCallback(
     (event: TouchEvent | MouseEvent): void => {
+      console.log('touch move')
       if (!dragState.current.isMoving || !pagesRef.current) return
       // Tính toán vị trí hiện tại và khoảng cách di chuyển
-      const { clientX } = getClientCoordinates(event)
+      const { clientX, clientY } = getClientCoordinates(event)
       const walkX = clientX - dragState.current.startX
+      const walkY = clientY - dragState.current.startY
+      const deltaTime = performance.now() - dragState.current.timeStart
+      //Logic giữ yên để move dapp
+      if (Math.abs(walkX) > 1 && deltaTime < 300) {
+        removeTarget()
+      }
       // Ngưỡng di chuyển nhỏ để bỏ qua các jitter không đáng kể
       const deltaThreshold = 2
       if (Math.abs(walkX) < deltaThreshold) return
       if (!dragState.current.isRequestingFrame) {
         dragState.current.isRequestingFrame = true
-        const { scrollLeft } = dragState.current
+        const { scrollLeft, target, targetLeft, targetTop, intervalMovePage, isMoving } = dragState.current
         requestAnimationFrame(() => {
-          movePage(scrollLeft - walkX) // Di chuyển trang
+          if (target) {
+            moveDapp(target, targetLeft + walkX, targetTop + walkY)
+            console.log('clientX', clientX, innerWidth - 40)
+            // if (clientX < 40 || clientX > innerWidth - 40) {
+            //   console.log('iisiiss', isMoving)
+            //   if (!dragState.current.intervalMovePage && isMoving) {
+            //     let page = currentPage.current
+            //     dragState.current.intervalMovePage = setInterval(() => {
+            //       console.log('interval')
+            //       page += 1
+            //       scrollToPage(page)
+            //     }, 1000)
+            //   }
+            // } else {
+            //   console.log('reset 2')
+            //   removeMovePage()
+            // }
+          } else {
+            movePage(scrollLeft - walkX) // Di chuyển trang
+          }
+
           dragState.current.isRequestingFrame = false // Reset trạng thái
         })
       }
     },
-    [movePage]
+    [movePage, currentPage.current]
   )
 
   const onEndDraggable = useCallback(
     (event: TouchEvent | MouseEvent): void => {
+      console.log('touch end')
       if (!dragState.current.isMoving || !pagesRef.current) return
+      dragState.current.isMoving = false
+      const { target } = dragState.current
       const { clientX } = getClientCoordinates(event)
 
       // Tính toán velocity
       const deltaX = clientX - dragState.current.startX
       const deltaTime = performance.now() - dragState.current.timeStart
+      if (target) {
+        snapTo(target, currentPage.current)
+        resetDragState()
+
+        return
+      }
 
       // Kiểm tra giá trị deltaX và deltaTime
       const MAX_TIME = 1000 // Giới hạn thời gian tối đa kéo (1 giây)
@@ -119,6 +170,30 @@ export default function useDraggable() {
     if (!pagesRef.current) return
     console.log('onWheel - event: ', { deltaX: event.deltaX, deltaY: event.deltaY })
   }, [])
+
+  const addTarget = (target: HTMLElement) => {
+    target.style.position = 'fixed'
+    target.querySelector('p')!.style.color = 'transparent'
+    dragState.current.target = target
+  }
+
+  const removeTarget = () => {
+    const target = dragState.current.target
+    if (target) {
+      console.log('aaa')
+      target.querySelector('p')!.style.color = '#ffffff'
+      target.style.position = 'absolute'
+      delete dragState.current.target
+    }
+  }
+
+  const removeMovePage = () => {
+    if (dragState.current.intervalMovePage) {
+      clearInterval(dragState.current.intervalMovePage)
+      delete dragState.current.intervalMovePage
+    }
+  }
+
   // Assign the callback functions to the refs so they persist between renders
   useEffect(() => {
     onStartDraggableRef.current = onStartDraggable
