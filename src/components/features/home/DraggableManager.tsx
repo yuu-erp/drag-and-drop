@@ -16,8 +16,10 @@ const DraggableManager = React.forwardRef<HTMLDivElement, DraggableManagerProps>
         className='relative h-full w-full flex items-center'
         style={{
           backgroundImage: `url('https://i.pinimg.com/736x/14/a8/e0/14a8e061fa17ed31521f19998c82720d.jpg')`,
+          // backgroundImage: `url('https://i.pinimg.com/736x/f5/f6/29/f5f6294691c0114852ab2cdf90b0fe33.jpg')`,
           backgroundRepeat: isBgScroll ? 'repeat-x' : 'no-repeat',
           backgroundSize: isBgScroll ? 'auto 100%' : 'cover',
+          backgroundAttachment: isBgScroll ? 'scroll' : 'fixed', // Nếu không cuộn, sẽ cố định ảnh
           ...rest.style
         }}
       >

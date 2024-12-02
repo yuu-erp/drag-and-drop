@@ -5,6 +5,7 @@ import useSetting from './useSetting'
 import { getClientCoordinates, getEventTypes } from './useTouchMouseEvents'
 import { getTranslateFromTransform, wait } from '../utils'
 import useDappManager from './useDappManager'
+import { SIZE_ICON } from '../constant2'
 
 export interface IState {
   isMoving: boolean
@@ -32,6 +33,20 @@ const initDragState: IState = {
   targetLeft: 0,
   targetTop: 0,
   accumulatedDelta: 0
+}
+
+export const debounce = (func: Function, wait: number) => {
+  let timeout: any
+
+  return (...args: any[]) => {
+    const later = () => {
+      timeout = null
+      func(...args)
+    }
+
+    clearTimeout(timeout)
+    timeout = setTimeout(later, wait)
+  }
 }
 
 export default function useDraggable() {
@@ -94,25 +109,31 @@ export default function useDraggable() {
       if (Math.abs(walkX) < deltaThreshold) return
       if (!dragState.current.isRequestingFrame) {
         dragState.current.isRequestingFrame = true
-        const { scrollLeft, target, targetLeft, targetTop, intervalMovePage, isMoving } = dragState.current
+        const { scrollLeft, target, targetLeft, targetTop } = dragState.current
         requestAnimationFrame(() => {
           if (target) {
             moveDapp(target, targetLeft + walkX, targetTop + walkY)
-            console.log('clientX', clientX, innerWidth - 40)
-            // if (clientX < 40 || clientX > innerWidth - 40) {
-            //   console.log('iisiiss', isMoving)
-            //   if (!dragState.current.intervalMovePage && isMoving) {
-            //     let page = currentPage.current
-            //     dragState.current.intervalMovePage = setInterval(() => {
-            //       console.log('interval')
-            //       page += 1
-            //       scrollToPage(page)
-            //     }, 1000)
-            //   }
-            // } else {
-            //   console.log('reset 2')
-            //   removeMovePage()
-            // }
+            console.log('onMoveDraggable', { clientX, clientY })
+            if (clientX < SIZE_ICON) {
+              if (!dragState.current.intervalMovePage) {
+                dragState.current.intervalMovePage = setInterval(() => {
+                  currentPage.current = Math.max(0, currentPage.current - 1)
+                  console.log(' currentPage.current: ', currentPage.current)
+                  scrollToPage(currentPage.current, () => setCurrentPage(currentPage.current))
+                }, 800)
+              }
+            } else if (clientX > innerWidth - SIZE_ICON) {
+              if (!dragState.current.intervalMovePage) {
+                dragState.current.intervalMovePage = setInterval(() => {
+                  const pageWidth = pagesRef.current?.clientWidth || 1 // Tránh chia cho 0
+                  const maxPage = Math.ceil(pagesRef.current.scrollWidth / pageWidth) - 1 // Tính page max được tính từ 0
+                  currentPage.current = Math.min(maxPage, currentPage.current + 1)
+                  scrollToPage(currentPage.current, () => setCurrentPage(currentPage.current))
+                }, 800)
+              }
+            } else {
+              removeMovePage()
+            }
           } else {
             movePage(scrollLeft - walkX) // Di chuyển trang
           }
@@ -161,6 +182,7 @@ export default function useDraggable() {
         }
       }
       scrollToPage(currentPage.current, () => setCurrentPage(currentPage.current))
+      clearInterval(dragState.current.intervalMovePage)
       resetDragState()
     },
     [scrollToPage, resetDragState]

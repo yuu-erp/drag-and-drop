@@ -45,8 +45,8 @@ export default function MainLayout() {
       />
       <DraggableManager
         ref={pagesRef}
-        isBgScroll={true}
-        isBlur
+        isBgScroll={false}
+        isBlur={false}
         style={{
           width: mockPage * innerWidth + 'px'
         }}
