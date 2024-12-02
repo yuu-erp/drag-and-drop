@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { cn } from '../lib/utils'
+import NewDraggableManager from '../components/NewDraggableManager'
 
 export const HEIGHT_DOCK = 120
 
@@ -61,7 +62,8 @@ const NewLayout = () => {
   const [stateManager, _setStateManager] = useState(() => {
     const columns = getCheckPointColumn()
     const { itemWidth, outerPadding, gridGap } = calculateGridDimensions(getCheckPointScreen(), columns)
-    const numberRows = Math.floor((innerHeight - getCheckPointHeightStatusBar() - 40 - HEIGHT_DOCK) / itemWidth)
+    const itemHeight = itemWidth * (columns === 4 ? 1.1 : 1)
+    const numberRows = Math.floor((innerHeight - getCheckPointHeightStatusBar() - 40 - HEIGHT_DOCK) / itemHeight)
 
     return {
       screenWidth: getCheckPointScreen(),
@@ -72,6 +74,7 @@ const NewLayout = () => {
       numberColumn: columns,
       numberRows,
       itemWidth,
+      itemHeight,
       outerPadding,
       gridGap,
       widthDock:
@@ -91,8 +94,6 @@ const NewLayout = () => {
     setDataDock((prev) => prev.filter((item) => item !== value))
   }
 
-  console.log('stateManager: ', stateManager)
-
   useEffect(() => {
     const handleResize = () => window.location.reload()
     window.addEventListener('resize', handleResize)
@@ -107,7 +108,8 @@ const NewLayout = () => {
     numberRows,
     itemWidth,
     outerPadding,
-    widthDock
+    widthDock,
+    itemHeight
   } = stateManager
 
   return (
@@ -121,44 +123,68 @@ const NewLayout = () => {
       </div>
 
       {/* Background Image */}
-      <div className='absolute inset-0 w-full h-full flex items-center justify-center'>
-        <div className='relative w-full h-full'>
-          <img
-            src='https://i.pinimg.com/736x/14/a8/e0/14a8e061fa17ed31521f19998c82720d.jpg'
-            alt=''
-            className='absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 object-cover w-full h-full'
-          />
+      {/* <div className='absolute inset-0 h-full w-full overflow-x-auto'>
+        <div
+          className='relative h-full w-full overflow-x-auto'
+          style={{
+            backgroundImage: `url('https://i.pinimg.com/736x/14/a8/e0/14a8e061fa17ed31521f19998c82720d.jpg')`,
+            backgroundRepeat: 'repeat-x',
+            backgroundSize: 'auto 100%', // Chiều cao full, chiều rộng auto
+            width: '400vw'
+          }}
+        >
           {isBlur && (
-            <div className={cn('absolute inset-0 backdrop-blur', theme === 'dark' ? 'bg-black/20' : 'bg-white/20')} />
+            <div
+              className={cn('absolute inset-0 backdrop-blur z-0', theme === 'dark' ? 'bg-black/20' : 'bg-white/20')}
+            />
           )}
+          {createGrid(numberRows, numberColumn).map((grid, index) => (
+            <div
+              key={index}
+              className='absolute'
+              style={{
+                width: itemWidth + 'px',
+                height: itemHeight + 'px',
+                top: grid.y * itemHeight + getCheckPointHeightStatusBar() + 'px',
+                left: grid.x * itemWidth + outerPadding + (innerWidth - getCheckPointScreen()) / 2,
+                paddingLeft: outerPadding + 'px',
+                paddingRight: outerPadding + 'px'
+              }}
+            >
+              <div className='w-full h-full flex flex-col items-center justify-center'>
+                <div className='w-[60px] aspect-square bg-slate-600 rounded-[14px] shadow-sm'></div>
+                <p className='line-clamp-1 text-center text-white font-medium text-xs'>Metanode App</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div> */}
+
+      <NewDraggableManager
+        style={{
+          width: '400vw'
+        }}
+      >
+        {createGrid(numberRows, numberColumn).map((grid, index) => (
           <div
-            className='relative w-full h-full mx-auto'
+            key={index}
+            className='absolute'
             style={{
-              maxWidth: getCheckPointScreen() + 'px'
+              width: itemWidth + 'px',
+              height: itemHeight + 'px',
+              top: grid.y * itemHeight + getCheckPointHeightStatusBar() + 'px',
+              left: grid.x * itemWidth + outerPadding + (innerWidth - getCheckPointScreen()) / 2,
+              paddingLeft: outerPadding + 'px',
+              paddingRight: outerPadding + 'px'
             }}
           >
-            {createGrid(numberRows, numberColumn).map((grid, index) => (
-              <div
-                key={index}
-                className='absolute'
-                style={{
-                  width: itemWidth + 'px',
-                  height: itemWidth + 'px',
-                  top: grid.y * itemWidth + getCheckPointHeightStatusBar() + 'px',
-                  left: grid.x * itemWidth + outerPadding,
-                  paddingLeft: outerPadding + 'px',
-                  paddingRight: outerPadding + 'px'
-                }}
-              >
-                <div className='w-full h-full flex flex-col items-center justify-center'>
-                  <div className='w-[60px] aspect-square bg-slate-600 rounded-[14px]'></div>
-                  <p className='line-clamp-1 text-center text-white font-medium text-xs'>Metanode App</p>
-                </div>
-              </div>
-            ))}
+            <div className='w-full h-full flex flex-col items-center justify-center'>
+              <div className='w-[60px] aspect-square bg-slate-600 rounded-[14px] shadow-sm'></div>
+              <p className='line-clamp-1 text-center text-white font-medium text-xs'>Metanode App</p>
+            </div>
           </div>
-        </div>
-      </div>
+        ))}
+      </NewDraggableManager>
 
       {/* Pagination */}
       <div
@@ -194,7 +220,7 @@ const NewLayout = () => {
             {dataDock.map((_app, index) => (
               <div
                 key={index}
-                className='w-[60px] aspect-square bg-slate-600 rounded-[14px]'
+                className='w-[60px] aspect-square bg-slate-600 rounded-[14px] shadow-sm'
                 onClick={onRemoveDappDock(_app)}
               ></div>
             ))}
