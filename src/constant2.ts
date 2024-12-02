@@ -1,6 +1,6 @@
 export const HEIGHT_DOCK = 120
 export const HEIGHT_PAGINATION = 40
-export const SIZE_ICON = 120
+export const SIZE_ICON = 60
 
 export enum Device {
   MOBILE = 'MOBILE',

@@ -56,7 +56,7 @@ export const CalculateProvider: React.FC<CalculateProviderProps> = ({ children }
     const { itemWidth, outerPadding } = calculateGridDimensions(getCheckPointScreen(), columnNumber)
     const itemHeight = itemWidth * (device === 'MOBILE' ? 1.1 : 1)
     const rowsNumber = Math.floor((innerHeight - heightStatusBar - HEIGHT_PAGINATION - HEIGHT_DOCK) / itemHeight)
-    const widthDock = device === 'MOBILE' ? innerWidth : columnDockNumber * SIZE_ICON - columnDockNumber * outerPadding
+    const widthDock = device === 'MOBILE' ? innerWidth : columnDockNumber * SIZE_ICON + columnDockNumber * outerPadding
     console.log(widthDock)
     return {
       heightStatusBar,

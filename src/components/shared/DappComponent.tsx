@@ -1,5 +1,6 @@
 import React, { HTMLAttributes } from 'react'
 import { cn } from '../../lib/utils'
+import { SIZE_ICON } from '../../constant2'
 
 interface DappComponentProps extends HTMLAttributes<HTMLDivElement> {
   className?: string
@@ -10,7 +11,13 @@ const DappComponent = React.forwardRef<HTMLDivElement, DappComponentProps>((prop
   return (
     <div ref={ref} className={cn(className)} {...rest}>
       <div className='w-full h-full flex flex-col items-center justify-center gap-1'>
-        <div className='w-[60px] aspect-square bg-slate-600 rounded-[14px] shadow-sm'></div>
+        <div
+          className='w-[60px] aspect-square bg-slate-600 rounded-[14px] shadow-sm'
+          style={{
+            width: SIZE_ICON + 'px',
+            height: SIZE_ICON + 'px'
+          }}
+        ></div>
         {isShowName && <p className='line-clamp-1 text-center text-white font-medium text-xs'>Metanode App</p>}
       </div>
     </div>
